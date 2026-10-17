@@ -1,1 +1,1 @@
-{"name":"elixir-quant","version":"1.0.0","private":true,"type":"module","scripts":{"dev":"node server.cjs","test":"node --test model.test.js rules.test.js","build":"node build.js"}}
+{"name":"elixir-quant","version":"1.0.0","private":true,"type":"module","scripts":{"dev":"node server.cjs","test":"node --test model.test.js rules.test.js history.test.js","build":"node build.js"},"dependencies":{"echarts":"6.1.0"}}

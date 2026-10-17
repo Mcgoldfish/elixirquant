@@ -1,15 +1,41 @@
 import {validateStrategy,evaluateConditions} from './rules.js';
-export function prices(seed = 42, count = 756) {
+export function prices(seed = 42, count = 756, version = 2) {
   let state = seed >>> 0, price = 100;
   const random = () => ((state = (Math.imul(1664525, state) + 1013904223) >>> 0) / 4294967296);
   return Array.from({length: count}, (_, day) => {
-    price *= Math.exp(0.00025 + 0.003 * Math.sin(day / 65) + (random() - 0.5) * 0.035);
+    if(version===1)price *= Math.exp(0.00025 + 0.003 * Math.sin(day / 65) + (random() - 0.5) * 0.035);
+    else {
+      const normal=Math.sqrt(-2*Math.log(Math.max(random(),1e-12)))*Math.cos(2*Math.PI*random());
+      const drift=seed===42?0.00015:seed===127?0:-0.0001;
+      const volatility=(seed===127?0.02:0.014)*(Math.floor(day/126)%2?1.3:0.8);
+      price*=Math.exp(drift-volatility*volatility/2+volatility*normal);
+    }
     return {day, close: price};
   });
 }
 export function average(rows, period) {
   let sum = 0;
   return rows.map((r, i) => { sum += r.close; if (i >= period) sum -= rows[i - period].close; return i >= period - 1 ? sum / period : null; });
+}
+export function historyForRun(config,seed){
+ const version=config.dataVersion??1,start=config.startSession??1,end=config.endSession??756;
+ if(![1,2].includes(version)||!Number.isInteger(start)||!Number.isInteger(end)||start<1||end>2520||end<=start)throw new Error('Choose a valid simulated period: start ≥ 1, end ≤ 2,520, and end after start.');
+ return {rows:prices(seed,end,version).slice(start-1,end),dataVersion:version,startSession:start,endSession:end};
+}
+export function historicalHistory(config,stock){
+ if(!stock||!Array.isArray(stock.rows))throw new Error('Historical prices are unavailable for this stock.');
+ const start=config.startDate,end=config.endDate;
+ const validDate=s=>typeof s==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s)&&new Date(s).toISOString().slice(0,10)===s;
+ if(!validDate(start)||!validDate(end)||end<=start)throw new Error('Choose valid start and end dates, with end after start.');
+ const rows=stock.rows.filter(r=>r[0]>=start&&r[0]<=end).map((r,day)=>({day,date:r[0],close:r[1],rawClose:r[2],volume:r[3]}));
+ if(rows.length<3)throw new Error('The selected date range has insufficient price history.');
+ if(rows.some((r,i)=>!Number.isFinite(r.close)||r.close<=0||(i&&r.date<=rows[i-1].date)))throw new Error('Invalid or unsorted historical prices.');
+ return {rows,startDate:rows[0].date,endDate:rows.at(-1).date};
+}
+export function annualizedReturn(totalReturn,rows){
+ const years=rows[0]?.date&&rows.at(-1)?.date?(Date.parse(rows.at(-1).date)-Date.parse(rows[0].date))/(86400000*365.25):(rows.length-1)/252;
+ if(!(years>0))throw new Error('At least two distinct dated observations are required.');
+ return (1+totalReturn)**(1/years)-1;
 }
 export const strategies = {
   trend: {name: 'Trend continuation', rule: 'Hold when the fast average exceeds the slow average and price is above its fast average; otherwise hold cash.'},
