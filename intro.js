@@ -1,5 +1,6 @@
 const intro=document.getElementById('entrance'),shell=document.querySelector('.shell'),skip=document.getElementById('skip-intro');
-if(intro&&shell&&skip){
+if(intro&&shell&&skip&&document.documentElement.dataset.entrance==='skip'){intro.remove();}
+else if(intro&&shell&&skip){
  let closed=false;document.documentElement.classList.add('intro-active');
  const leave=()=>{
   if(closed)return;closed=true;shell.inert=false;document.documentElement.classList.remove('intro-active');intro.classList.add('is-leaving');

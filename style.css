@@ -14,3 +14,5 @@ input[type=checkbox]{color-scheme:light;background:#fff}.sidebar-status{display:
 .content h1[tabindex='-1']:focus{outline:none}.entrance-reflection{animation:entrance-reflect 1.3s .5s both}@keyframes entrance-reflect{from{opacity:0}to{opacity:.2}}
 
 html.intro-active{overflow:hidden}
+
+html[data-entrance='skip'] .entrance{display:none!important}.home-about{display:grid;grid-template-columns:1.1fr 1fr;gap:50px;border-top:1px solid var(--line);padding:28px 0;margin-top:34px}.home-about h2{font-size:19px;font-weight:550;margin:0 0 12px}.home-about p{font-size:12px;line-height:1.85;color:#8fa295;max-width:650px}.home-about button{margin:8px 16px 8px 0}.home-about a{font-size:11px;text-decoration:none;color:#8db39a}.tabs{overflow:auto;white-space:nowrap}.tabs button{flex-shrink:0}@media(max-width:760px){.home-about{grid-template-columns:1fr;gap:25px}}

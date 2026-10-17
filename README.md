@@ -74,5 +74,10 @@ No open-source license has been selected. Public visibility does not grant a gen
 
 ## Public-edition presentation
 
-A brief black-and-green Elixir Quant entrance sequence plays on a full page load, with reflected lettering and a decorative progress line. It does not claim to measure data loading. Enter workspace or Escape skips it; reduced-motion preference bypasses the animation. In-page navigation does not replay it. The workflow is organized as My strategies → Backtests → Compare, with Data & Connection alongside. The results home provides three direct entry points and a separate results-library section. This presentation change is limited to the public repository; no private application, market dataset or execution rules were changed.
+A brief black-and-green Elixir Quant entrance sequence plays on the first load of a new tab session, with reflected lettering and a decorative progress line. It does not claim to measure data loading. Enter workspace or Escape skips it; reduced-motion preference bypasses the animation. In-page navigation does not replay it. The workflow is organized as My strategies → Backtests → Compare, with Data & Connection alongside. The results home provides three direct entry points and a separate results-library section. This presentation change is limited to the public repository; no private application, market dataset or execution rules were changed.
+
+
+## Home and entrance lifecycle
+
+Home contains the introductory explanation and Create / Test / Review shortcuts. Backtests focuses on filtering and inspecting completed results. The top-left brand returns to Home through in-app navigation. The entrance plays once in a new tab session, using sessionStorage; refresh and back/forward navigation skip it, without a splash flash. The most recent top-level page is remembered for refreshes. Closing the tab ends its normal session; a newly opened tab plays the entrance again. Browser restore/duplicate-tab features may preserve browser-managed session storage. Reduced motion still bypasses the animation.
 
