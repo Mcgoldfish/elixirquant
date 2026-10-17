@@ -1,0 +1,7 @@
+const http = require('node:http'), fs = require('node:fs'), path = require('node:path');
+const allowed = new Set(['index.html','style.css','app.js','model.js']);
+http.createServer((req,res) => {
+ const file = new URL(req.url, 'http://localhost').pathname.slice(1) || 'index.html';
+ if (!allowed.has(file)) { res.writeHead(404); res.end(); return; }
+ fs.readFile(path.join(__dirname,file),(err,data) => {if(err){res.writeHead(404);res.end();return;}res.setHeader('Content-Type',file.endsWith('.js')?'text/javascript':file.endsWith('.css')?'text/css':'text/html');res.end(data);});
+}).listen(5182,'127.0.0.1',()=>console.log('Local: http://127.0.0.1:5182'));

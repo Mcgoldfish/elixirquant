@@ -1,0 +1,9 @@
+node_modules/
+.env*
+!.env.example
+.cache/
+exports/
+*.csv
+*.pdf
+dist/
+.DS_Store
