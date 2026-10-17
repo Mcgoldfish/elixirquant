@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <title>Elixir Quant — three K-line bars</title>
+  <rect x="1" y="1" width="62" height="62" rx="15" fill="#030805" stroke="#254332" stroke-width="1.5"/>
+  <g fill="none" stroke-linecap="round" stroke-width="2">
+    <path d="M10 18h44" stroke="#41d17d"/>
+    <path d="M10 32h34" stroke="#ef756c"/>
+    <path d="M10 46h44" stroke="#41d17d"/>
+  </g>
+  <rect x="16" y="13" width="32" height="10" rx="1.5" fill="#41d17d"/>
+  <rect x="16" y="27" width="23" height="10" rx="1.5" fill="#ef756c"/>
+  <rect x="16" y="41" width="32" height="10" rx="1.5" fill="#41d17d"/>
+</svg>

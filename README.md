@@ -81,3 +81,7 @@ A brief black-and-green Elixir Quant entrance sequence plays on the first load o
 
 Home contains the introductory explanation and Create / Test / Review shortcuts. Backtests focuses on filtering and inspecting completed results. The top-left brand returns to Home through in-app navigation. The entrance plays once in a new tab session, using sessionStorage; refresh and back/forward navigation skip it, without a splash flash. The most recent top-level page is remembered for refreshes. Closing the tab ends its normal session; a newly opened tab plays the entrance again. Browser restore/duplicate-tab features may preserve browser-managed session storage. Reduced motion still bypasses the animation.
 
+
+## Identity
+
+The favicon and sidebar mark use three horizontal K-line bars: green, coral, green on a rounded dark square. Their long–short–long bodies also suggest an E, preserving the original icon idea. The source is favicon.svg, a resolution-independent vector suitable for small browser tabs and larger displays.
