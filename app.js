@@ -1,39 +1,80 @@
-import {prices, average, backtest} from './model.js';
-const $ = id => document.getElementById(id), key = 'elixirQuantPublic.runs.v1';
-let rows, result, config, market, saved = [];
-try { const parsed = JSON.parse(localStorage.getItem(key) || '[]'); if(Array.isArray(parsed)) saved = parsed.filter(r => r && typeof r.market === 'string' && ['fast','slow','capital','fee','slippage','totalReturn','maxDrawdown','orders'].every(k => Number.isFinite(r[k]))).slice(0,20); } catch {}
-const money = n => n.toLocaleString('en-US',{maximumFractionDigits:2, minimumFractionDigits:2});
-const percent = n => `${(n * 100).toFixed(2)}%`;
-const pages = {explore: ['Explore', 'Explore Markets', 'Inspect synthetic price history and technical indicators.'], build: ['Build', 'Build Strategy', 'Configure an educational model and prepare your experiment.'], test: ['Test', 'Test Model', 'Review model performance, assumptions, and execution details.'], runs: ['Runs', 'Run Registry', 'Compare the results of your saved experiments.'], settings: ['Settings', 'Data & Connection', 'Review the public research environment.']};
-function tab(id){
- for(const section of Object.keys(pages))$(section).hidden=section!==id;
- for(const b of document.querySelectorAll('[data-tab]'))b.setAttribute('aria-pressed',b.dataset.tab===id);
- for(const b of document.querySelectorAll('[data-page]'))b.setAttribute('aria-pressed',b.dataset.page===(id==='runs'?'runs':id==='settings'?'settings':'strategies'));
- $('breadcrumb').textContent=(id==='settings'?'Environment':'Workspace')+' / '+pages[id][0];$('workspace-title').textContent=pages[id][1];$('workspace-description').textContent=pages[id][2];$('context-title').textContent=id==='settings'?'Settings':'Workspace';
- document.querySelector('.workflow').hidden=id==='settings';
+import {prices,backtest,strategies} from './model.js';
+const content=document.getElementById('content'), storageKey='elixirQuantPublic.results.v2';
+const pages=['Backtests','Compare','Data & Connection'];
+const markets={42:'ELX-A',127:'ELX-B',903:'ELX-C'};
+const colors=['#22c55e','#e0ba69','#78a4da'];
+let page='Backtests',selected=null,detailTab='Overview',query='',source='All',checked=new Set(),notice='';
+const money=n=>Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const pct=n=>(n*100).toFixed(2)+'%';
+const escape=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const element=(tag,text)=>{const node=document.createElement(tag);node.textContent=text;return node;};
+const defaults={strategy:'trend',fast:20,slow:60,capital:10000,fee:5,slippage:5};
+function createRun(config,seed,name,id,origin='Elixir research engine'){
+ const rows=prices(seed), result=backtest(rows,config);
+ return {id,name,seed,config:{...config},origin,result,rows};
 }
-for(const b of document.querySelectorAll('[data-tab], [data-open]'))b.onclick=()=>tab(b.dataset.tab||b.dataset.open);
-function chart(id, series, height = 300){
- const flat = series.flatMap(s => s.values).filter(Number.isFinite);let lo = Math.min(...flat), hi = Math.max(...flat);if(lo===hi){lo-=1;hi+=1;}
- const x = i => 75 + i / (rows.length - 1) * 905, y = v => 20 + (hi - v) / (hi - lo) * (height - 55);
- const ns = 'http://www.w3.org/2000/svg', svg = $(id);svg.replaceChildren();
- const add = (tag,attrs,text) => {const e=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))e.setAttribute(k,v);if(text)e.textContent=text;svg.append(e);};
- for(let i=0;i<4;i++){const v=lo+(hi-lo)*i/3;add('line',{x1:75,x2:980,y1:y(v),y2:y(v),stroke:'#202723'});add('text',{x:0,y:y(v)+4},money(v));}
- for(const s of series){add('path',{d:s.values.map((v,i)=>v===null?'':`${i===0||s.values[i-1]===null?'M':'L'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' '),fill:'none',stroke:s.color,'stroke-width':2,'stroke-linejoin':'round'});}
- add('text',{x:75,y:height-4},'Session 1');add('text',{x:905,y:height-4},'Session 756');
+const examples=[['trend',42,'Trend continuation · ELX-A'],['crossover',42,'Moving-average crossover · ELX-A'],['breakout',42,'Price breakout · ELX-A'],['trend',127,'Trend continuation · ELX-B'],['crossover',903,'Moving-average crossover · ELX-C']].map(([strategy,seed,name],i)=>createRun({...defaults,strategy},seed,name,'example-'+i));
+let local=[];
+function load(){try{const data=JSON.parse(localStorage.getItem(storageKey)||'[]');if(!Array.isArray(data))return;local=data.slice(0,30).flatMap(r=>{try{if(!r||typeof r.id!=='string'||typeof r.name!=='string'||!Object.hasOwn(markets,r.seed))return [];return [createRun(r.config,r.seed,r.name.slice(0,100),r.id,'Browser-saved run')];}catch{return [];}});}catch{notice='Browser storage is unavailable; example runs remain available.';}}
+load();
+const runs=()=>[...local,...examples];
+const header=(crumb,title,description,actions='')=>`<header class="page-header"><div><span>${escape(crumb)}</span><h1>${escape(title)}</h1><p>${escape(description)}</p></div><div class="actions">${actions}</div></header>`;
+const empty=(title,text)=>`<section class="empty"><h2>${escape(title)}</h2><p>${escape(text)}</p></section>`;
+function navigate(next){page=next;selected=null;detailTab='Overview';render();}
+function navigation(){for(const selector of ['.side-nav','.tabs']){const nav=document.querySelector(selector);nav.replaceChildren();for(const name of pages){const b=element('button',name);if(page===name)b.setAttribute('aria-current','page');b.onclick=()=>navigate(name);nav.append(b);}}}
+function gridTable(headers,rows){return `<div class="scroll"><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>`;}
+function drawChart(node,series,drawdown=false){
+ const ns='http://www.w3.org/2000/svg', svg=document.createElementNS(ns,'svg');svg.classList.add('chart');svg.setAttribute('viewBox','0 0 1200 400');svg.setAttribute('role','img');svg.setAttribute('aria-label',drawdown?'Drawdown over 756 synthetic sessions':'Equity over 756 synthetic sessions');
+ const values=series.flatMap(s=>s.values);let low=Math.min(...values),high=Math.max(...values);if(low===high){low-=1;high+=1;}const x=i=>80+i/755*1090,y=v=>25+(high-v)/(high-low)*320;
+ const add=(tag,attrs,text)=>{const e=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))e.setAttribute(k,v);if(text!==undefined)e.textContent=text;svg.append(e);};
+ for(let i=0;i<5;i++){const value=low+(high-low)*i/4;add('line',{x1:80,x2:1170,y1:y(value),y2:y(value),stroke:'#172b21'});add('text',{x:10,y:y(value)+4},drawdown?value.toFixed(1)+'%':money(value));}
+ for(const s of series)add('path',{d:s.values.map((v,i)=>(i?'L':'M')+x(i).toFixed(2)+','+y(v).toFixed(2)).join(' '),fill:'none',stroke:s.color,'stroke-width':2,'stroke-linejoin':'round'});
+ add('text',{x:80,y:382},'Session 1');add('text',{x:1070,y:382},'Session 756');node.append(svg);
 }
-function savedTable(){const body=$('saved-runs');body.replaceChildren();for(const r of saved){const tr=document.createElement('tr');for(const value of [r.market,`${r.fast} / ${r.slow}`,money(r.capital),`${r.fee} / ${r.slippage}`,percent(r.totalReturn),percent(r.maxDrawdown),r.orders]){const td=document.createElement('td');td.textContent=value;tr.append(td);}body.append(tr);}$('runs-status').textContent=saved.length?'':'No saved runs yet. Run an experiment, then save its summary.';}
-function run(){
- const nextConfig = Object.fromEntries(new FormData($('config')).entries());for(const k in nextConfig)nextConfig[k]=Number(nextConfig[k]);
- const seed=Number($('market').value), nextRows=prices(seed), nextResult=backtest(nextRows,nextConfig);
- config=nextConfig;rows=nextRows;result=nextResult;market=$('market').selectedOptions[0].textContent;
- $('run-label').textContent=`${market} · ${config.fast}/${config.slow} averages · $${money(config.capital)} · fee ${config.fee} bps / slippage ${config.slippage} bps`;
- chart('price-chart',[{values:rows.map(r=>r.close),color:'#22c55e'},{values:average(rows,20),color:'#d9ad55'},{values:average(rows,60),color:'#7f9a8b'}]);
- chart('equity-chart',[{values:result.benchmark,color:'#708379'},{values:result.equity,color:'#22c55e'}]);chart('drawdown-chart',[{values:result.drawdowns.map(v=>v*100),color:'#d9ad55'}],150);
- $('metrics').replaceChildren();for(const [label,value] of [['Total return',percent(result.totalReturn)],['Max drawdown',percent(result.maxDrawdown)],['Ending equity',`$${money(result.equity.at(-1))}`],['Orders',String(result.trades.length)]]){const div=document.createElement('div');div.className='metric';const small=document.createElement('small'),strong=document.createElement('strong');small.textContent=label;strong.textContent=value;div.append(small,strong);$('metrics').append(div);}
- $('trades').replaceChildren();for(const t of result.trades){const tr=document.createElement('tr');for(const v of [t.day+1,t.side,money(t.price),t.shares.toFixed(4)]){const td=document.createElement('td');td.textContent=v;tr.append(td);}$('trades').append(tr);}$('save-status').textContent='';$('error').textContent='';
+function list(){
+ content.innerHTML=header('Workspace / Backtests','Backtest results','Review completed runs and compare their evidence.','<button id="new-run">New backtest</button><button id="refresh">Refresh results</button>')+`<div class="toolbar"><label>Find a run<input id="query" placeholder="Strategy, symbol, or run name" value="${escape(query)}"></label><label>Source<select id="source"><option>All</option><option>Elixir research engine</option><option>Browser-saved run</option></select></label><button id="compare-selected" ${checked.size<2?'disabled':''}>Compare selected (${checked.size})</button></div><div id="run-list"></div><p class="note">Public examples are computed from seeded synthetic prices. Every displayed result can be inspected and reproduced; no private research is included.</p><p id="notice" class="note" role="status"></p>`;
+ document.getElementById('source').value=source;
+ document.getElementById('query').oninput=e=>{query=e.target.value;renderRows();};document.getElementById('source').onchange=e=>{source=e.target.value;renderRows();};
+ document.getElementById('new-run').onclick=newBacktest;document.getElementById('refresh').onclick=()=>{load();checked.clear();notice='Results refreshed.';render();};document.getElementById('compare-selected').onclick=()=>navigate('Compare');document.getElementById('notice').textContent=notice;renderRows();
 }
-$('config').onsubmit=e=>{e.preventDefault();try{run();tab('test');}catch(err){$('error').textContent=err.message;}};
-$('market').onchange=()=>{try{run();}catch(err){$('error').textContent=err.message;tab('build');}};
-$('save').onclick=()=>{const next=[{market,...config,totalReturn:result.totalReturn,maxDrawdown:result.maxDrawdown,orders:result.trades.length},...saved].slice(0,20);try{localStorage.setItem(key,JSON.stringify(next));saved=next;savedTable();$('save-status').textContent='Saved to your experiment notebook.';}catch{$('save-status').textContent='Browser storage is unavailable. This run could not be saved.';}};
-run();savedTable();tab('build');
+function renderRows(){
+ const filtered=runs().filter(r=>(source==='All'||r.origin===source)&&`${r.name} ${markets[r.seed]} ${strategies[r.config.strategy].name}`.toLowerCase().includes(query.toLowerCase()));
+ document.getElementById('run-list').innerHTML=filtered.length?gridTable(['Select','Run / strategy','Source','Universe','Return','Max drawdown','Status',''],filtered.map(r=>`<tr><td><input type="checkbox" aria-label="Compare ${escape(r.name)}" data-check="${escape(r.id)}" ${checked.has(r.id)?'checked':''} ${!checked.has(r.id)&&checked.size>=3?'disabled':''}></td><td><strong>${escape(r.name)}</strong><small>Session 1 → Session 756</small></td><td>${escape(r.origin)}</td><td>${markets[r.seed]}</td><td>${pct(r.result.totalReturn)}</td><td>${pct(Math.abs(r.result.maxDrawdown))}</td><td>Completed</td><td><button data-view="${escape(r.id)}">View results</button></td></tr>`)):empty('No matching runs','Change the search or source filter.');
+ for(const box of content.querySelectorAll('[data-check]'))box.onchange=()=>{if(box.checked)checked.add(box.dataset.check);else checked.delete(box.dataset.check);renderRows();};
+ for(const b of content.querySelectorAll('[data-view]'))b.onclick=()=>{selected=b.dataset.view;detailTab='Overview';render();};
+ const b=document.getElementById('compare-selected');b.textContent=`Compare selected (${checked.size})`;b.disabled=checked.size<2;
+}
+function metrics(r){const returns=r.result.equity.slice(1).map((v,i)=>v/r.result.equity[i]-1);const avg=returns.reduce((s,v)=>s+v,0)/returns.length;const variance=returns.reduce((s,v)=>s+(v-avg)**2,0)/returns.length;return [['Total return',pct(r.result.totalReturn)],['CAGR',pct((1+r.result.totalReturn)**(252/(r.rows.length-1))-1)],['Max drawdown',pct(Math.abs(r.result.maxDrawdown))],['Sharpe',variance>0?(avg/Math.sqrt(variance)*Math.sqrt(252)).toFixed(2):'—']];}
+function detail(){
+ const r=runs().find(r=>r.id===selected);if(!r){selected=null;list();return;}
+ const tabs=['Overview','Equity','Trades','Configuration','Validation','Files'];
+ content.innerHTML=header('Backtests / Run detail',r.name,`${r.origin} · ${markets[r.seed]}`,'<button id="back">← All backtests</button>')+`<nav class="detail-tabs" aria-label="Run details">${tabs.map(t=>`<button data-detail="${t}" ${t===detailTab?'aria-current="page"':''}>${t}</button>`).join('')}</nav><div id="detail-body"></div>`;
+ document.getElementById('back').onclick=()=>{selected=null;render();};for(const b of content.querySelectorAll('[data-detail]'))b.onclick=()=>{detailTab=b.dataset.detail;detail();};const body=document.getElementById('detail-body');
+ if(detailTab==='Overview'||detailTab==='Equity'){
+  body.innerHTML=(detailTab==='Overview'?`<div class="metrics">${metrics(r).map(([label,value])=>`<article><span>${label}</span><strong>${value}</strong></article>`).join('')}</div>`:'')+`<div class="chart-legend"><span>● Strategy equity</span><span>● Buy & hold · frictionless</span></div><div id="equity"></div><p class="note">Drawdown from peak · %</p><div id="drawdown"></div><p class="note">756 synthetic sessions · Initial capital $${money(r.config.capital)} · Final holdings marked to market.</p>`;
+  drawChart(document.getElementById('equity'),[{values:r.result.equity,color:'#22c55e'},{values:r.result.benchmark,color:'#80958a'}]);drawChart(document.getElementById('drawdown'),[{values:r.result.drawdowns.map(v=>v*100),color:'#22c55e'}],true);
+ }else if(detailTab==='Trades'){
+  body.innerHTML=gridTable(['Symbol','Session','Action','Fill price','Shares','Gross value'],r.result.trades.map(t=>`<tr><td>${markets[r.seed]}</td><td>${t.day+1}</td><td>${t.side}</td><td>$${money(t.price)}</td><td>${t.shares.toFixed(4)}</td><td>$${money(t.price*t.shares)}</td></tr>`))+`<p class="note">Each row is an executed order. Gross value excludes fees; equity includes fees. Open holdings are not liquidated at the final session.</p>`;
+ }else if(detailTab==='Configuration'){
+  body.innerHTML='<section class="panel"><h2>Recorded assumptions</h2><p>Read-only settings from this run.</p><pre id="config-record"></pre></section>';document.getElementById('config-record').textContent=JSON.stringify({strategy:strategies[r.config.strategy].name,rule:strategies[r.config.strategy].rule,universe:markets[r.seed],seed:r.seed,...r.config},null,2);
+ }else if(detailTab==='Validation'){
+  body.innerHTML=`<section class="panel"><h2>Validation & provenance</h2><dl><div><dt>Engine</dt><dd>Elixir public research engine</dd></div><div><dt>Data status</dt><dd>Seeded synthetic demonstration · Not real market history</dd></div><div><dt>Period</dt><dd>756 synthetic sessions</dd></div><div><dt>Benchmark</dt><dd>Frictionless buy & hold</dd></div><div><dt>Execution</dt><dd>Yesterday's signal executes at today's close, adjusted for slippage and fees.</dd></div></dl><p>Long only, fractional shares, no leverage, zero cash interest. Fees and slippage apply on each side. CAGR and Sharpe assume 252 sessions per year; Sharpe uses daily returns with a zero risk-free rate. Taxes, liquidity, market impact, dividends and corporate actions are omitted.</p></section>`;
+ }else{
+  body.innerHTML='<section class="panel"><h2>Recorded artifacts</h2><p>Download this reproducible run, including configuration, synthetic prices, equity, drawdown and orders.</p><button id="download">Download run JSON</button></section>';document.getElementById('download').onclick=()=>{const blob=new Blob([JSON.stringify(r,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='elixir-quant-'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+ }
+}
+function compare(){
+ const chosen=runs().filter(r=>checked.has(r.id));content.innerHTML=header('Workspace / Compare','Compare backtests','Select up to three recorded runs from Backtests.','<button id="choose">Choose runs</button>');document.getElementById('choose').onclick=()=>navigate('Backtests');
+ if(chosen.length<2){content.insertAdjacentHTML('beforeend',empty('Choose at least two runs','Use the selection checkboxes on Backtests to compare recorded performance.'));return;}
+ const comparable=chosen.every(r=>r.seed===chosen[0].seed&&r.config.capital===chosen[0].config.capital&&r.config.fee===chosen[0].config.fee&&r.config.slippage===chosen[0].config.slippage);
+ content.insertAdjacentHTML('beforeend',`<p class="note">${comparable?'Same market, capital, and transaction costs.':'Market paths, capital, or transaction costs differ. Review configurations before comparing.'} Curves are normalized to a starting index of 100.</p>`+gridTable(['Metric',...chosen.map(r=>escape(r.name)+`<small>${markets[r.seed]}</small>`)],metrics(chosen[0]).map(([label],i)=>'<tr><th>'+label+'</th>'+chosen.map(r=>'<td>'+metrics(r)[i][1]+'</td>').join('')+'</tr>'))+'<div id="comparison-chart"></div><div id="comparison-legend" class="chart-legend"></div><button id="clear">Clear selection</button>');
+ drawChart(document.getElementById('comparison-chart'),chosen.map((r,i)=>({values:r.result.equity.map(v=>100*v/r.config.capital),color:colors[i]})));chosen.forEach((r,i)=>{const span=element('span',r.name);span.style.color=colors[i];document.getElementById('comparison-legend').append(span);});document.getElementById('clear').onclick=()=>{checked.clear();compare();};
+}
+function settings(){content.innerHTML=header('Workspace / Data & Connection','Data & Connection','Source and connection details for displayed backtest results.')+`<section class="panel"><h2>Elixir research engine</h2><dl><div><dt>Connection</dt><dd>Browser-local · No account or API key required</dd></div><div><dt>Execution engine</dt><dd>Elixir public engine · Three educational strategies</dd></div><div><dt>Displayed records</dt><dd>${runs().length}</dd></div><div><dt>Data</dt><dd>Three deterministic synthetic price paths · 756 sessions each</dd></div><div><dt>Storage</dt><dd>Up to 30 browser-saved runs, separate from private research</dd></div></dl><p>Trend continuation, moving-average crossover, and price breakout run directly in your browser. AmiBroker and brokerage connections are not configured in this public edition.</p></section><section class="panel"><h2>Strategy rules</h2>${Object.values(strategies).map(s=>`<p><strong>${s.name}.</strong> ${s.rule}</p>`).join('')}</section><section class="panel"><h2>Project</h2><p><a href="https://github.com/Mcgoldfish/elixirquant" target="_blank" rel="noopener noreferrer">View source code ↗</a> · <a href="https://mcgoldfish.github.io/mcquerious/#experiments">McQuerious ↗</a></p></section>`;}
+function newBacktest(){
+ selected=null;navigation();content.innerHTML=header('Backtests / New backtest','New backtest','Configure a simple strategy and record a reproducible run.','<button id="cancel">← All backtests</button>')+`<section class="panel"><h2>Strategy & execution</h2><form id="new-config"><div class="form-grid"><label>Run name<input name="name" maxlength="100" placeholder="Optional run name"></label><label>Strategy<select name="strategy" id="strategy">${Object.entries(strategies).map(([id,s])=>`<option value="${id}">${s.name}</option>`).join('')}</select></label><label>Universe<select name="seed">${Object.entries(markets).map(([seed,s])=>`<option value="${seed}">${s} · Synthetic market</option>`).join('')}</select></label><label>Fast lookback · sessions<input name="fast" type="number" min="2" max="755" value="20" required></label><label>Slow lookback · sessions<input name="slow" type="number" min="3" max="756" value="60" required></label><label>Initial capital · $<input name="capital" type="number" min="1" value="10000" required></label><label>Fee · basis points per side<input name="fee" type="number" min="0" max="9999" step="0.1" value="5" required></label><label>Slippage · basis points per side<input name="slippage" type="number" min="0" max="9999" step="0.1" value="5" required></label></div><p id="rule" class="model-rules"></p><p class="note">Signals use prior-session data. Orders fill at the next session's close with fees and slippage. Final equity marks open holdings to market.</p><button class="primary" type="submit">Run backtest</button><p id="error" class="error" role="alert"></p></form></section>`;
+ document.getElementById('cancel').onclick=()=>navigate('Backtests');const strategy=document.getElementById('strategy');const rule=()=>{document.getElementById('rule').textContent=strategies[strategy.value].rule;};strategy.onchange=rule;rule();
+ document.getElementById('new-config').onsubmit=e=>{e.preventDefault();try{const data=Object.fromEntries(new FormData(e.target));const config={strategy:data.strategy,...Object.fromEntries(['fast','slow','capital','fee','slippage'].map(k=>[k,Number(data[k])]))};const id='run-'+Date.now()+'-'+Math.random().toString(36).slice(2,7);const run=createRun(config,Number(data.seed),data.name.trim()||strategies[data.strategy].name+' · '+markets[data.seed],id,'Browser-saved run');local=[run,...local].slice(0,30);try{localStorage.setItem(storageKey,JSON.stringify(local.map(({id,name,seed,config})=>({id,name,seed,config}))));notice='Run saved in this browser.';}catch{notice='Run completed in memory; browser storage is unavailable.';}selected=id;detailTab='Overview';render();}catch(err){document.getElementById('error').textContent=err.message;}};
+}
+function render(){navigation();if(page==='Backtests'){if(selected)detail();else list();}else if(page==='Compare')compare();else settings();}
+window.addEventListener('storage',e=>{if(e.key===storageKey){load();checked.clear();render();}});render();
