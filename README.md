@@ -30,3 +30,7 @@ Tests verify reproducibility, delayed execution, accounting, transaction costs, 
 ## License
 
 No open-source license has been selected yet. Public visibility does not grant a general license to reuse the source.
+
+## Public workspace layout
+
+The original application’s black-and-green visual format is reproduced with a research sidebar, Strategies / Runs / Data & Connection navigation, and Explore / Build / Test / Runs tabs. All public demo data and model logic remain independent from private research.
