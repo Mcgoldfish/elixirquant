@@ -1,3 +1,4 @@
+import {validateStrategy,evaluateConditions} from './rules.js';
 export function prices(seed = 42, count = 756) {
   let state = seed >>> 0, price = 100;
   const random = () => ((state = (Math.imul(1664525, state) + 1013904223) >>> 0) / 4294967296);
@@ -14,9 +15,11 @@ export const strategies = {
   trend: {name: 'Trend continuation', rule: 'Hold when the fast average exceeds the slow average and price is above its fast average; otherwise hold cash.'},
   crossover: {name: 'Moving-average crossover', rule: 'Hold when the fast average exceeds the slow average; otherwise hold cash.'},
   breakout: {name: 'Price breakout', rule: 'Enter above the previous slow-period high; exit below the previous fast-period low.'},
+  custom: {name: 'Your strategy', rule: 'Your entry rules open a position; your exit rules return to cash. Exit takes priority when both match.'},
 };
-export function backtest(rows, {strategy = 'crossover', fast = 20, slow = 60, capital = 10000, fee = 5, slippage = 5} = {}) {
+export function backtest(rows, {strategy = 'crossover', custom, fast = 20, slow = 60, capital = 10000, fee = 5, slippage = 5} = {}) {
   if (!Object.hasOwn(strategies, strategy)) throw new Error('Choose a supported strategy.');
+  const definition = strategy === 'custom' ? validateStrategy(custom) : null;
   if (![fast, slow].every(Number.isInteger) || fast < 2 || slow <= fast || slow > rows.length || !Number.isFinite(capital) || capital <= 0 || ![fee, slippage].every(v => Number.isFinite(v) && v >= 0 && v < 10000) || !rows.every(r => Number.isFinite(r.close) && r.close > 0)) throw new Error('Choose valid periods (2 ≤ fast < slow ≤ history), positive capital, and costs below 10,000 bps.');
   const f = average(rows, fast), s = average(rows, slow), cost = fee / 10000, slip = slippage / 10000;
   let cash = capital, shares = 0, peak = capital, maxDrawdown = 0;
@@ -34,6 +37,10 @@ export function backtest(rows, {strategy = 'crossover', fast = 20, slow = 60, ca
         if (!shares && rows[prior].close > high) long = true;
         if (shares && rows[prior].close < low) long = false;
       }
+    }
+    if (definition) {
+      const exit = evaluateConditions(definition.exit,rows,prior);
+      long = !exit && (shares > 0 || evaluateConditions(definition.entry,rows,prior));
     }
     if (long && !shares) {
       const fill = r.close * (1 + slip); shares = cash / (fill * (1 + cost));

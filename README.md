@@ -1,12 +1,27 @@
 # Elixir Quant
 
-A quantitative backtest results workspace with **Backtests**, **Compare**, and **Data & Connection** navigation, matching the original Elixir Quant results interface.
+A quantitative backtest results workspace with **Backtests**, **My strategies**, **Compare**, and **Data & Connection** navigation, matching the original Elixir Quant results interface.
 
 [Open the live app](https://mcgoldfish.github.io/elixirquant/) · [Source code](https://github.com/Mcgoldfish/elixirquant)
 
 ## Use
 
 The app opens on five reproducible example runs. Search by run, strategy or symbol; filter by source; inspect results; select two or three runs to compare. **New backtest** configures and saves a run in your browser. Detail tabs include Overview, Equity, Trades, Configuration, Validation, and Files. Files exports the full run as JSON.
+
+The opening guide explains backtesting and offers **Try trend continuation** and **Create your own strategy**. Markets are labelled as simulated. Result cards include keyboard-accessible explanations of return, drawdown, CAGR and Sharpe.
+
+## Create, save and import your own strategies
+
+Open **My strategies → Create strategy**. Name your idea and define buy and sell conditions. Each condition compares price, a simple moving average, percentage price change, a previous high/low, or a number. Match all conditions (AND) or any condition (OR), with up to eight conditions per side and lookbacks of 2–250 sessions. Above, below, at-or-above and at-or-below comparisons are supported.
+
+Entry opens one long position; exit closes it. Exit has priority if both match. Indicators must have sufficient historical data. Previous highs/lows exclude the signal session; percentage price change compares with the price at the lookback offset. Custom rules use the same delayed fills and transaction-cost accounting as built-in models.
+
+- **Save in this browser:** keeps up to 30 strategies on this device using `elixirQuantPublic.strategies.v1`. Clearing browser data removes these copies.
+- **Download strategy file:** saves an `.elixir-strategy.json` file through the browser's download flow. Keep it as a backup or move it to another device.
+- **Import a strategy file:** reads a downloaded definition locally, validates it, and adds it to My strategies. It is not uploaded to a server or published for other users.
+- **Run strategy:** choose a simulated market, capital, fees and slippage, then execute your rules and inspect or compare the results.
+
+Imports accept the version-1 `elixir-quant-strategy` JSON schema, with a 100 KB file limit and bounded rule counts, indicators, lookbacks and numbers. Unknown data fields are stripped. Strategy files contain rules, not executable JavaScript. Files in a run's **Files** tab can export either the full run or just its reusable strategy definition.
 
 ## Strategies
 
@@ -36,7 +51,7 @@ npm run build
 
 Local server: http://127.0.0.1:5182. Build output: `dist/`. GitHub Actions tests, builds and publishes the static app to GitHub Pages.
 
-`model.js` contains pure strategy and execution functions. Tests verify seeded reproducibility, strategy-specific signal rules, delayed fills, transaction-cost accounting, flat prices and independence from future data. `app.js` owns result browsing, strategy configuration, comparisons and exports. `index.html` and `style.css` provide the original results-workspace format.
+`model.js` contains pure strategy and execution functions. `rules.js` validates imported definitions and evaluates custom conditions. Tests verify seeded reproducibility, strategy-specific signal rules, delayed fills, transaction-cost accounting, flat prices, AND/OR semantics, indicator warmup, import validation, JSON round trips and independence from future data. `app.js` owns the guided interface, strategy library, result browsing, comparisons and file import/export. `index.html` and `style.css` provide the original results-workspace format.
 
 ## License
 
