@@ -2,6 +2,8 @@
 
 A browser-based quantitative research workbench: **Explore → Build → Test → Runs**.
 
+[Open the live app](https://mcgoldfish.github.io/elixirquant/) · [Source code](https://github.com/Mcgoldfish/elixirquant)
+
 This public edition uses seeded synthetic prices and an educational moving-average strategy. Proprietary research and trading strategies are maintained separately. No private project files, data, credentials or Git history are included.
 
 ## Run
