@@ -71,3 +71,8 @@ Local server: http://127.0.0.1:5182. Build output: `dist/`. GitHub Actions tests
 ## License
 
 No open-source license has been selected. Public visibility does not grant a general license to reuse the source.
+
+## Public-edition presentation
+
+A brief black-and-green Elixir Quant entrance sequence plays on a full page load, with reflected lettering and a decorative progress line. It does not claim to measure data loading. Enter workspace or Escape skips it; reduced-motion preference bypasses the animation. In-page navigation does not replay it. The workflow is organized as My strategies → Backtests → Compare, with Data & Connection alongside. The results home provides three direct entry points and a separate results-library section. This presentation change is limited to the public repository; no private application, market dataset or execution rules were changed.
+

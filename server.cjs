@@ -1,5 +1,5 @@
 const http = require('node:http'), fs = require('node:fs'), path = require('node:path');
-const allowed = new Set(['index.html','style.css','app.js','model.js','rules.js','charts.js','historical-data.json','vendor/echarts.min.js']);
+const allowed = new Set(['index.html','style.css','app.js','intro.js','model.js','rules.js','charts.js','historical-data.json','vendor/echarts.min.js']);
 http.createServer((req,res) => {
  const file = new URL(req.url, 'http://localhost').pathname.slice(1) || 'index.html';
  if (!allowed.has(file)) { res.writeHead(404); res.end(); return; }
