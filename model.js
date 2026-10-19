@@ -38,22 +38,26 @@ export function annualizedReturn(totalReturn,rows){
  return (1+totalReturn)**(1/years)-1;
 }
 export const strategies = {
+  sma: {name:'Price vs moving average',educational:true,rule:'Hold when the previous close is above one simple moving average; otherwise hold cash.'},
+  momentum: {name:'Positive momentum',educational:true,rule:'Hold when the previous close is above its price one lookback ago; otherwise hold cash.'},
   trend: {name: 'Trend continuation', rule: 'Hold when the fast average exceeds the slow average and price is above its fast average; otherwise hold cash.'},
   crossover: {name: 'Moving-average crossover', rule: 'Hold when the fast average exceeds the slow average; otherwise hold cash.'},
   breakout: {name: 'Price breakout', rule: 'Enter above the previous slow-period high; exit below the previous fast-period low.'},
   custom: {name: 'Your strategy', rule: 'Your entry rules open a position; your exit rules return to cash. Exit takes priority when both match.'},
 };
-export function backtest(rows, {strategy = 'crossover', custom, fast = 20, slow = 60, capital = 10000, fee = 5, slippage = 5} = {}) {
+export function backtest(rows, {strategy = 'sma', custom, fast = 20, slow = 60, capital = 10000, fee = 5, slippage = 5} = {}) {
   if (!Object.hasOwn(strategies, strategy)) throw new Error('Choose a supported strategy.');
   const definition = strategy === 'custom' ? validateStrategy(custom) : null;
   if (![fast, slow].every(Number.isInteger) || fast < 2 || slow <= fast || slow > rows.length || !Number.isFinite(capital) || capital <= 0 || ![fee, slippage].every(v => Number.isFinite(v) && v >= 0 && v < 10000) || !rows.every(r => Number.isFinite(r.close) && r.close > 0)) throw new Error('Choose valid periods (2 ≤ fast < slow ≤ history), positive capital, and costs below 10,000 bps.');
-  const f = average(rows, fast), s = average(rows, slow), cost = fee / 10000, slip = slippage / 10000;
+  const f = strategy === 'momentum' ? rows.map(()=>null) : average(rows, fast), s = ['sma','momentum'].includes(strategy) ? rows.map(()=>null) : average(rows, slow), cost = fee / 10000, slip = slippage / 10000;
   let cash = capital, shares = 0, peak = capital, maxDrawdown = 0;
   const trades = [], equity = [], drawdowns = [];
   rows.forEach((r, i) => {
     // Yesterday’s close sets today’s target; today's close is the fill proxy.
     const prior = i - 1;
     let long = prior >= 0 && s[prior] !== null && f[prior] > s[prior];
+    if (strategy === 'sma') long = prior >= fast - 1 && rows[prior].close > f[prior];
+    if (strategy === 'momentum') long = prior >= fast && rows[prior].close > rows[prior-fast].close;
     if (strategy === 'trend') long = long && rows[prior].close > f[prior];
     if (strategy === 'breakout') {
       long = shares > 0;

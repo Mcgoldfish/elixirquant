@@ -20,7 +20,11 @@ Write an array to `publications.json`, each record containing:
 - `version`: public version label (up to 40 characters).
 - `symbol`, `startDate`, `endDate`: fixed historical test selection.
 - `capital`, `fee`, `slippage`: fixed assumptions (defaults 10000, 5 bps and 5 bps per side).
-- `definition`: a version-1 `elixir-quant-strategy` JSON object exported from the rule builder. This is private. There is no browser upload endpoint for publishers.
+- `source`: must be `elixir-education`.
+- `strategy`: only `sma` or `momentum`, the native single-indicator educational engines.
+- `lookback`: one integer from 2 to 250.
+
+Arbitrary definitions, executable code, external-engine artifacts and unknown fields are rejected. No AmiBroker/AFL strategy, backtest, report or result may be published. There is no publisher upload endpoint in the browser.
 
 Set environment variables in your server/host settings:
 
@@ -84,3 +88,13 @@ Anyone allowed to view summaries can copy them. Rounded monthly results reduce s
 目前界面和后端代码已完成并通过测试。**下一步是选择并连接私人服务器**，之后才能上传保密策略并在线发布。现有简单教学策略已经公开，仍保留为公开示例。当前没有上传任何保密策略，公开数据快照仍可供本地回测使用。
 
 2026-10-19：Render 服务 https://elixirquant.onrender.com 已通过健康检查及跨域连接检查，并已配置到公开版前端。目前发布列表为空，尚未上传任何保密策略。下一步是在 Render 的 Secret Files 中配置私人策略文件，而不是将文件提交到 GitHub。
+
+### Current release restriction
+
+Publisher releases are now limited to native single-indicator educational models only. The earlier arbitrary `definition` format is no longer accepted. Do not upload original research or AmiBroker-related material to this service. Example non-secret record:
+
+```json
+[{"id":"education-01","name":"Single moving average","version":"1","source":"elixir-education","strategy":"sma","lookback":20,"symbol":"AAPL","startDate":"2021-01-01","endDate":"2026-10-16"}]
+```
+
+发布范围仅限原生单指标教学模型。此前的任意 definition 格式已停止接受。AmiBroker 相关策略、回测、报告和结果不得上传或发布。上述来源字段是发布声明；服务实际只重新计算允许的原生教学模型，不导入外部回测结果。

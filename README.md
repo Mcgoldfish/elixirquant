@@ -10,9 +10,9 @@ A quantitative backtest results workspace with **Backtests**, **My strategies**,
 
 ## Use
 
-The app opens on five historical example runs using AAPL, MSFT and NVDA. Search by run, strategy or symbol; filter by source; inspect results; select two or three runs to compare. **New backtest** configures and saves a run in your browser. Detail tabs include Overview, Equity, Trades, Configuration, Validation, and Files. Files exports the full run as JSON.
+The app opens on four single-indicator historical example runs using AAPL, MSFT and NVDA. Search by run, strategy or symbol; filter by source; inspect results; select two or three runs to compare. **New backtest** configures and saves a run in your browser. Detail tabs include Overview, Equity, Trades, Configuration, Validation, and Files. Files exports the full run as JSON.
 
-The opening guide explains backtesting and offers **Try trend continuation** and **Create your own strategy**. Stocks show their ticker and company name, and every run shows requested versus actual calendar dates. Result cards include keyboard-accessible explanations of return, drawdown, CAGR and Sharpe.
+The opening guide explains backtesting and offers **Try a strategy** and **Create your own strategy**. Stocks show their ticker and company name, and every run shows requested versus actual calendar dates. Result cards include keyboard-accessible explanations of return, drawdown, CAGR and Sharpe.
 
 ## Create, save and import your own strategies
 
@@ -29,9 +29,8 @@ Imports accept the version-1 `elixir-quant-strategy` JSON schema, with a 100 KB 
 
 ## Strategies
 
-- **Trend continuation:** hold when the fast simple moving average exceeds the slow average and price exceeds the fast average; otherwise hold cash.
-- **Moving-average crossover:** hold when the fast simple moving average exceeds the slow average; otherwise hold cash.
-- **Price breakout:** enter above the preceding slow-lookback high and exit below the preceding fast-lookback low. The signal bar is excluded from those high/low windows.
+- **Price vs moving average:** hold when price is above one SMA; otherwise hold cash. One lookback.
+- **Positive momentum:** hold when price change over one lookback is positive; otherwise hold cash. One lookback.
 
 Rules, parameters and execution assumptions are visible for every run. All strategies are simple educational baselines. Proprietary research, strategies, private data, credentials, original results and Git history are excluded.
 
@@ -89,3 +88,7 @@ Home contains the introductory explanation and Create / Test / Review shortcuts.
 ## Identity
 
 The favicon and sidebar mark use three horizontal K-line bars: green, coral, green on a rounded dark square. Their long–short–long bodies also suggest an E, preserving the original icon idea. The source is favicon.svg, a resolution-independent vector suitable for small browser tabs and larger displays.
+
+## Public content boundary
+
+Only native single-indicator educational releases belong on this site. No AmiBroker/AFL strategies, backtests, reports, or results may be published. There is no external-engine report import. Publisher records accept only the native SMA or momentum model with a single lookback and `source: "elixir-education"`; arbitrary definitions and report fields are rejected. Legacy native browser-model logic remains solely to reproduce older locally saved runs, not as selectable educational examples. Visitors may still create their own local custom rules. No private original project files are copied.

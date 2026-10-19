@@ -3,7 +3,7 @@ import {resolve,relative,isAbsolute} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createServer} from 'node:http';
 import {backtest,historicalHistory,annualizedReturn} from '../model.js';
-import {validateStrategy} from '../rules.js';
+
 
 // Keep publisher definitions OUTSIDE this checkout. No private directory is served.
 export function loadPublications(file, marketFile) {
@@ -15,10 +15,12 @@ export function loadPublications(file, marketFile) {
  if(!Array.isArray(records)||records.length>100)throw Error('Use an array of at most 100 publications.');
  const market=JSON.parse(readFileSync(marketFile,'utf8')),ids=new Set();
  return records.map(record=>{
-  const {id,name,version,symbol,startDate,endDate,capital=10000,fee=5,slippage=5,definition}=record;
+  const {id,name,version,symbol,startDate,endDate,capital=10000,fee=5,slippage=5,strategy,lookback,source}=record;
+  const allowed=new Set(['id','name','version','symbol','startDate','endDate','capital','fee','slippage','strategy','lookback','source']);
+  if(source!=='elixir-education'||!['sma','momentum'].includes(strategy)||!Number.isInteger(lookback)||lookback<2||lookback>250||Object.keys(record).some(key=>!allowed.has(key)))throw Error('Only native single-indicator educational releases are accepted. External engines, definitions and reports are prohibited.');
   if(!/^[a-z0-9-]{1,60}$/.test(id)||ids.has(id)||typeof name!=='string'||!name.trim()||name.length>100||typeof version!=='string'||version.length>40)throw Error('Invalid publication metadata.');
   ids.add(id);
-  const config={strategy:'custom',custom:validateStrategy(definition),startDate,endDate,capital,fee,slippage,fast:2,slow:3};
+  const config={strategy,startDate,endDate,capital,fee,slippage,fast:lookback,slow:lookback+1};
   const {rows}=historicalHistory(config,market.stocks[symbol]);
   const result=backtest(rows,config);
   const returns=result.equity.slice(1).map((v,i)=>v/result.equity[i]-1);
