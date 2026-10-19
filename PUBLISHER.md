@@ -7,7 +7,7 @@ The public frontend has two separate paths:
 
 ## Current deployment status
 
-The GitHub Pages frontend has no private service configured (`publisher-config.json` has `apiBase: null`). It reports this honestly. No confidential strategies have been uploaded or migrated. Hosting must be selected before server-side releases are available online. GitHub Pages cannot execute this service.
+The private publisher API is deployed at https://elixirquant.onrender.com and connected through publisher-config.json. Health and the empty catalog were verified with the GitHub Pages origin. No confidential strategies have been uploaded or migrated; the catalog currently has no releases. GitHub Pages hosts only the frontend.
 
 ## Run privately
 
@@ -82,3 +82,5 @@ Anyone allowed to view summaries can copy them. Rounded monthly results reduce s
 访客不能修改这些发布版本的测试参数，服务也有限流措施，减少反复试探。不过，**公开展示的结果仍然可以被复制，也可能被用于推测部分规则**。
 
 目前界面和后端代码已完成并通过测试。**下一步是选择并连接私人服务器**，之后才能上传保密策略并在线发布。现有简单教学策略已经公开，仍保留为公开示例。当前没有上传任何保密策略，公开数据快照仍可供本地回测使用。
+
+2026-10-19：Render 服务 https://elixirquant.onrender.com 已通过健康检查及跨域连接检查，并已配置到公开版前端。目前发布列表为空，尚未上传任何保密策略。下一步是在 Render 的 Secret Files 中配置私人策略文件，而不是将文件提交到 GitHub。

@@ -1,1 +1,3 @@
-{"apiBase":null}
+{
+  "apiBase": "https://elixirquant.onrender.com/api/published/"
+}
