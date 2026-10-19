@@ -19,3 +19,5 @@ html[data-entrance='skip'] .entrance{display:none!important}.home-about{display:
 
 /* Three horizontal K-line bars retain the original E-shaped idea. */
 .brand .mark{border:0;background:none;box-shadow:none;border-radius:0;width:36px;height:36px;flex-shrink:0}.brand .mark img{display:block;width:36px;height:36px}
+
+.compare-picker{display:grid;gap:12px}.compare-picker label{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--line);border-radius:6px}.compare-picker input{width:auto}.compare-picker small{display:block;color:#8fa295;margin-top:5px}

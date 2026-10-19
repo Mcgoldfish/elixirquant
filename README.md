@@ -92,3 +92,7 @@ The favicon and sidebar mark use three horizontal K-line bars: green, coral, gre
 ## Public content boundary
 
 Only native single-indicator educational releases belong on this site. No AmiBroker/AFL strategies, backtests, reports, or results may be published. There is no external-engine report import. Publisher records accept only the native SMA or momentum model with a single lookback and `source: "elixir-education"`; arbitrary definitions and report fields are rejected. Legacy native browser-model logic remains solely to reproduce older locally saved runs, not as selectable educational examples. Visitors may still create their own local custom rules. No private original project files are copied.
+
+## Public workflow (October 2026)
+
+The public navigation is Home → Strategies → Backtest → Compare → Data & Connection. Home suggests research questions and next steps. Strategies combines published educational SMA/momentum examples with browser-saved custom strategies, and provides Create New Strategy with editable entry and exit conditions. Select an educational or custom strategy for Backtest; all saved definitions are also available in the new-backtest selector. Compare provides its own selector for two or three completed runs. Data & Connection documents local execution, storage, historical coverage, and limitations. Private publisher releases are no longer a separate page in this public workflow.
