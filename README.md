@@ -4,6 +4,10 @@ A quantitative backtest results workspace with **Backtests**, **My strategies**,
 
 [Open the live app](https://mcgoldfish.github.io/elixirquant/) · [Source code](https://github.com/Mcgoldfish/elixirquant)
 
+## Strategy privacy
+
+**My strategies** runs on your device. **Published strategies** uses a separate private service and shares only summary metrics and rounded monthly performance. The existing simple examples remain public educational rules. No private service is connected to GitHub Pages yet; choose hosting and follow [Publisher setup](PUBLISHER.md) before uploading confidential releases.
+
 ## Use
 
 The app opens on five historical example runs using AAPL, MSFT and NVDA. Search by run, strategy or symbol; filter by source; inspect results; select two or three runs to compare. **New backtest** configures and saves a run in your browser. Detail tabs include Overview, Equity, Trades, Configuration, Validation, and Files. Files exports the full run as JSON.
