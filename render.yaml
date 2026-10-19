@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: elixir-quant-publisher
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm test
+    startCommand: npm run publisher:serve
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: HOST
+        value: 0.0.0.0
+      - key: ELIXIR_ALLOWED_ORIGIN
+        value: https://mcgoldfish.github.io
+

@@ -33,6 +33,7 @@ export function createPublishedHandler({publications=[],origin='',limit=10,globa
  const windows=new Map();let globalWindow={at:now(),count:0};
  return (req,res)=>{
   const url=new URL(req.url,'http://localhost');
+  if(url.pathname==='/healthz'&&req.method==='GET'){res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify({status:'ok'}));return true;}
   if(!url.pathname.startsWith('/api/published/'))return false;
   const send=(status,data)=>{res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff',...(origin?{'Access-Control-Allow-Origin':origin,'Vary':'Origin'}:{})});res.end(JSON.stringify(data));return true;};
   if(req.headers.origin&&req.headers.origin!==origin)return send(403,{error:'Origin not allowed.'});

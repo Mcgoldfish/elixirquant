@@ -6,12 +6,13 @@ async function endpoint(path){
  if(!base)throw Error('The private publisher service is not connected yet. Your own strategies still run locally under My strategies.');
  const url=new URL(path,new URL(base,location.href));
  if(url.protocol!=='https:'&&url.hostname!=='127.0.0.1'&&url.hostname!=='localhost')throw Error('The publisher connection requires HTTPS.');
- const response=await fetch(url,{credentials:'omit',referrerPolicy:'no-referrer',signal:AbortSignal.timeout(15000)});
+ const response=await fetch(url,{credentials:'omit',referrerPolicy:'no-referrer',signal:AbortSignal.timeout(90000)});
  const data=await response.json();if(!response.ok)throw Error(data.error||'Publisher service unavailable.');return data;
 }
 export async function publishedPage(content){
  content.innerHTML='<header class="page-header"><div><span>Workspace / Published strategies</span><h1>Published strategies</h1><p>Publisher research evaluated privately, separate from your local strategies.</p></div></header><section class="panel"><h2>How to explore a release</h2><ol><li>Choose a version from the release list below.</li><li>Check its stock, actual test period, and fixed trading costs.</li><li>Review summary metrics and rounded monthly equity against buy &amp; hold.</li></ol><p>Fixed stock, dates, and costs for each release. Rules and parameters stay on the publisher’s server. Only summary metrics and rounded monthly performance are shared; orders and exact entry/exit dates are withheld.</p><p class="note">Visible results can still be copied or used to infer aspects of a strategy. Monthly points omit within-month moves; reported drawdown uses daily observations. These are historical tests, not out-of-sample evidence.</p></section><section class="panel" id="publisher-list" role="status">Connecting…</section><div id="publisher-result"></div>';
  const host=content.querySelector('#publisher-list');
+ host.textContent='Connecting to the publisher service… A sleeping host may take about a minute to respond.';
  try{
   const {strategies}=await endpoint('catalog');if(!host.isConnected)return;
   if(!strategies.length){host.textContent='No publisher strategies have been released yet.';return;}
