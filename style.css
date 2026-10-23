@@ -39,21 +39,5 @@ button,input,select,textarea{font-family:inherit}
 .metrics article{min-width:0}
 @media(max-width:760px){.side-nav{gap:4px}.side-nav button{font-size:9px}.tabs{gap:16px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
-/* Give Michroma more readable text sizes and less compressed spacing. */
-.page-header h1{font-size:32px;line-height:1.4;letter-spacing:0}
-.registry-heading h2,.panel h2,.introduction h2,.home-about h2{letter-spacing:0;line-height:1.5}
-.tabs button,.side-nav button{font-size:13px;line-height:1.7;font-weight:400}
-button,.toolbar button,.detail-tabs button{font-size:13px;line-height:1.65;font-weight:400}
-.toolbar label,.form-grid label,label,th{font-size:12px;line-height:1.7}
-.toolbar input,.toolbar select,input,select,.form-grid input,.form-grid select,.rule-group input,.rule-group select{font-size:13px;min-height:46px;line-height:1.6}
-th{padding:16px 18px;font-weight:400}
-td,td strong{font-size:13px;line-height:1.8;font-weight:400}
-td small,th small{font-size:11px;line-height:1.9}
-td button{font-size:12px}
-.note,.data-badge,.page-header p,.panel p,.introduction p,.home-about p,.model-rules{font-size:12px;line-height:1.9}
-.context span,.section-kicker,.sidebar-status small{font-size:10px;line-height:1.8}
-.brand strong{font-size:12px;letter-spacing:.01em}
-.brand small{font-size:9px;letter-spacing:0}
-.page-header{gap:24px;flex-wrap:wrap}
-@media(max-width:1100px){.side-nav button{font-size:11px}}
-@media(max-width:760px){.tabs button{font-size:12px}.side-nav button{font-size:11px}.page-header h1{font-size:27px}.toolbar label{min-width:0;width:100%;flex-basis:100%}.context span{font-size:10px}}
+/* Keep the compact interface with natural heading spacing. */
+.page-header h1,.registry-heading h2,.panel h2,.introduction h2,.home-about h2{letter-spacing:0}
