@@ -24,3 +24,17 @@ html[data-entrance='skip'] .entrance{display:none!important}.home-about{display:
 
 /* Compact task-focused pages. */
 .page-header{margin-bottom:24px}.panel{padding:22px;margin-bottom:20px}.panel h2{margin-top:0}.library-intro{padding:16px 22px}.note:empty,.error:empty{display:none}.workflow-guide small:empty{display:none}
+
+/* Public-edition typography: Michroma has a single regular weight. */
+:root{font-family:"Michroma",sans-serif;font-synthesis:none}
+body{line-height:1.65}
+button,input,select,textarea{font-family:inherit}
+.brand small,.page-header span,.chart text,pre,.entrance-eyebrow,.entrance-caption,.nav-index,.section-kicker,.workflow-guide button>span,.data-badge{font-family:"Michroma",sans-serif}
+.entrance-word,.entrance-reflection{font-family:"Michroma",sans-serif;font-weight:400;font-size:clamp(24px,5.4vw,76px)}
+.brand>span:last-child{min-width:0}
+.brand strong{font-size:11px;line-height:1.6}
+.brand small{font-size:8px;letter-spacing:.03em;line-height:1.7}
+.side-nav button{line-height:1.6;overflow-wrap:anywhere}
+.metrics strong{font-size:clamp(16px,1.8vw,24px);overflow-wrap:anywhere}
+.metrics article{min-width:0}
+@media(max-width:760px){.side-nav{gap:4px}.side-nav button{font-size:9px}.tabs{gap:16px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
