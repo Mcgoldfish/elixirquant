@@ -1,20 +1,38 @@
 # Elixir Quant
 
+## Introduction
+
+A browser workspace for testing educational trading strategies against historical stock prices. Create local rules, run backtests, inspect performance and compare results while keeping proprietary research separate.
+
+## Structure
+
+The current navigation is Home, Strategies, Backtest, Compare, and Data & Connection. Home introduces the research workflow. Strategies combines educational SMA/momentum examples with browser-saved custom rules. Backtest configures runs and presents results with Overview, Equity, Trades, Configuration, Validation and Files views. Compare plots two or three completed runs. Data & Connection explains coverage, storage and execution assumptions.
+
+## How it works
+
+Choose or create a strategy → configure a stock, dates, capital and costs → execute the backtest → inspect charts, trades and assumptions → export a run or strategy → compare selected results. Signals use the prior session and fills use the following session’s adjusted close. Custom runs and strategies are saved in this browser. The navigation described here supersedes older interface labels in the reference notes.
+
+## Others
+
+With Node.js 20+, run `npm ci`, `npm test`, then `npm run dev`; open http://127.0.0.1:5182. `npm run build` creates `dist/`. The included GitHub Actions workflow tests, builds and publishes the static app to GitHub Pages. The project links its published edition below.
+
+### Detailed reference
+
 A quantitative backtest results workspace with **Backtests**, **My strategies**, **Compare**, and **Data & Connection** navigation, matching the original Elixir Quant results interface.
 
 [Open the live app](https://mcgoldfish.github.io/elixirquant/) · [Source code](https://github.com/Mcgoldfish/elixirquant)
 
-## Strategy privacy
+#### Strategy privacy
 
 **My strategies** runs on your device. **Published strategies** uses a separate private service and shares only summary metrics and rounded monthly performance. The existing simple examples remain public educational rules. No private service is connected to GitHub Pages yet; choose hosting and follow [Publisher setup](PUBLISHER.md) before uploading confidential releases.
 
-## Use
+#### Use
 
 The app opens on four single-indicator historical example runs using AAPL, MSFT and NVDA. Search by run, strategy or symbol; filter by source; inspect results; select two or three runs to compare. **New backtest** configures and saves a run in your browser. Detail tabs include Overview, Equity, Trades, Configuration, Validation, and Files. Files exports the full run as JSON.
 
 The opening guide explains backtesting and offers **Try a strategy** and **Create your own strategy**. Stocks show their ticker and company name, and every run shows requested versus actual calendar dates. Result cards include keyboard-accessible explanations of return, drawdown, CAGR and Sharpe.
 
-## Create, save and import your own strategies
+#### Create, save and import your own strategies
 
 Open **My strategies → Create strategy**. Name your idea and define buy and sell conditions. Each condition compares price, a simple moving average, percentage price change, a previous high/low, or a number. Match all conditions (AND) or any condition (OR), with up to eight conditions per side and lookbacks of 2–250 sessions. Above, below, at-or-above and at-or-below comparisons are supported.
 
@@ -27,14 +45,14 @@ Entry opens one long position; exit closes it. Exit has priority if both match. 
 
 Imports accept the version-1 `elixir-quant-strategy` JSON schema, with a 100 KB file limit and bounded rule counts, indicators, lookbacks and numbers. Unknown data fields are stripped. Strategy files contain rules, not executable JavaScript. Files in a run's **Files** tab can export either the full run or just its reusable strategy definition.
 
-## Strategies
+#### Strategies
 
 - **Price vs moving average:** hold when price is above one SMA; otherwise hold cash. One lookback.
 - **Positive momentum:** hold when price change over one lookback is positive; otherwise hold cash. One lookback.
 
 Rules, parameters and execution assumptions are visible for every run. All strategies are simple educational baselines. Proprietary research, strategies, private data, credentials, original results and Git history are excluded.
 
-## Historical Nasdaq-100 stock data
+#### Historical Nasdaq-100 stock data
 
 The default universe is a **101-security reference snapshot retrieved on 2026-10-17** from [the Nasdaq-100 constituent table](https://en.wikipedia.org/wiki/List_of_NASDAQ-100_companies). Both Alphabet share classes are included. This is a third-party reference, not an independently certified official or historical-membership feed. The app tests individual stocks from that snapshot; it does not simulate the whole index portfolio.
 
@@ -44,7 +62,7 @@ The snapshot is static, not real-time. Provenance, requested range, per-stock co
 
 **Limitations:** using today's members in older periods introduces survivorship bias; historical index membership and delisted stocks are not reconstructed. No out-of-sample validation or index-weighted portfolio claim is made. Yahoo's corporate-action and ticker histories are not independently audited. Data remains subject to its providers' terms; public repository visibility does not grant ownership of third-party data.
 
-## Accounting, dates and charts
+#### Accounting, dates and charts
 
 Signals use the prior session; orders execute at the following session's adjusted closing price with slippage and fees per side. Positions are long only, fractional and unlevered. Cash earns zero interest. Final holdings are marked to market without forced liquidation. Buy & hold is a frictionless reference. Warm-up lies inside the requested period; earlier prices do not contribute to signals. Actual dates may differ from requested dates because of listing dates, weekends, holidays or unavailable data.
 
@@ -56,7 +74,7 @@ Legacy browser-saved simulations remain reproducible and clearly labelled, and a
 
 Up to 30 custom runs are stored under `elixirQuantPublic.results.v2`. Custom strategies remain under `elixirQuantPublic.strategies.v1`; their files remain importable. No brokerage connection or server account is required.
 
-## Development
+#### Development
 
 Node.js 20 or later; run npm ci to install the pinned Apache ECharts dependency. No API key is required.
 
@@ -71,28 +89,28 @@ Local server: http://127.0.0.1:5182. Build output: `dist/`. GitHub Actions tests
 
 `charts.js` manages ECharts instances, resizing, date alignment and disposal. The build includes the pinned ECharts bundle, LICENSE and NOTICE locally rather than relying on an external CDN. `model.js` contains pure strategy and execution functions. `rules.js` validates imported definitions and evaluates custom conditions. Tests verify seeded reproducibility, strategy-specific signal rules, delayed fills, transaction-cost accounting, flat prices, AND/OR semantics, indicator warmup, import validation, JSON round trips and independence from future data. `app.js` owns the guided interface, strategy library, result browsing, comparisons and file import/export. `index.html` and `style.css` provide the original results-workspace format.
 
-## License
+#### License
 
 No open-source license has been selected. Public visibility does not grant a general license to reuse the source.
 
-## Public-edition presentation
+#### Public-edition presentation
 
 A brief black-and-green Elixir Quant entrance sequence plays on the first load of a new tab session, with reflected lettering and a decorative progress line. It does not claim to measure data loading. The sequence advances automatically; Escape skips it; reduced-motion preference bypasses the animation. In-page navigation does not replay it. The workflow is organized as My strategies → Backtests → Compare, with Data & Connection alongside. The results home provides three direct entry points and a separate results-library section. This presentation change is limited to the public repository; no private application, market dataset or execution rules were changed.
 
 
-## Home and entrance lifecycle
+#### Home and entrance lifecycle
 
 Home contains the introductory explanation and Create / Test / Review shortcuts. Backtests focuses on filtering and inspecting completed results. The top-left brand returns to Home through in-app navigation. The entrance plays once in a new tab session, using sessionStorage; refresh and back/forward navigation skip it, without a splash flash. The most recent top-level page is remembered for refreshes. Closing the tab ends its normal session; a newly opened tab plays the entrance again. Browser restore/duplicate-tab features may preserve browser-managed session storage. Reduced motion still bypasses the animation.
 
 
-## Identity
+#### Identity
 
 The favicon and sidebar mark use three horizontal K-line bars: green, coral, green on a rounded dark square. Their long–short–long bodies also suggest an E, preserving the original icon idea. The source is favicon.svg, a resolution-independent vector suitable for small browser tabs and larger displays.
 
-## Public content boundary
+#### Public content boundary
 
 Only native single-indicator educational releases belong on this site. No AmiBroker/AFL strategies, backtests, reports, or results may be published. There is no external-engine report import. Publisher records accept only the native SMA or momentum model with a single lookback and `source: "elixir-education"`; arbitrary definitions and report fields are rejected. Legacy native browser-model logic remains solely to reproduce older locally saved runs, not as selectable educational examples. Visitors may still create their own local custom rules. No private original project files are copied.
 
-## Public workflow (October 2026)
+#### Public workflow (October 2026)
 
 The public navigation is Home → Strategies → Backtest → Compare → Data & Connection. Home suggests research questions and next steps. Strategies combines published educational SMA/momentum examples with browser-saved custom strategies, and provides Create New Strategy with editable entry and exit conditions. Select an educational or custom strategy for Backtest; all saved definitions are also available in the new-backtest selector. Compare provides its own selector for two or three completed runs. Data & Connection documents local execution, storage, historical coverage, and limitations. Private publisher releases are no longer a separate page in this public workflow.
