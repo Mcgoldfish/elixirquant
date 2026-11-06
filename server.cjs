@@ -1,5 +1,5 @@
 const http = require('node:http'), fs = require('node:fs'), path = require('node:path');
-const allowed = new Set(['published.js','favicon.svg','index.html','style.css','app.js','intro.js','model.js','rules.js','charts.js','historical-data.json','vendor/echarts.min.js']);
+const allowed = new Set(['education.js','published.js','favicon.svg','index.html','style.css','app.js','intro.js','model.js','rules.js','charts.js','historical-data.json','vendor/echarts.min.js']);
 const publisherReady=import('./scripts/publisher-server.mjs').then(({loadPublications,createPublishedHandler})=>createPublishedHandler({publications:loadPublications(process.env.ELIXIR_PUBLISHER_FILE,path.join(__dirname,'historical-data.json')),origin:'http://127.0.0.1:5182'}));
 http.createServer(async (req,res) => {
  if(req.url.startsWith('/api/published/')){try{(await publisherReady)(req,res);}catch{res.writeHead(503);res.end();}return;}
