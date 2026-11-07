@@ -31,7 +31,7 @@ function load(){try{const data=JSON.parse(localStorage.getItem(storageKey)||'[]'
 load();
 const runs=()=>[...local,...examples];
 const header=(crumb,title,description,actions='')=>`<header class="page-header"><div><h1>${escape(title)}</h1></div><div class="actions">${actions}</div></header>`;
-const empty=(title,text)=>`<section class="empty"><h2>${escape(title)}</h2></section>`;
+const empty=(title,text)=>`<section class="empty"><h2>${escape(title)}</h2><p>${escape(text)}</p></section>`;
 function navigate(next){page=next;selected=null;detailTab='Overview';render();window.scrollTo({top:0,behavior:'instant'});}
 function navigation(){
  for(const selector of ['.side-nav','.tabs']){
@@ -71,7 +71,7 @@ function detail(){
  }else if(detailTab==='Configuration'){
   body.innerHTML='<section class="panel"><h2>Recorded assumptions</h2><pre id="config-record"></pre></section>';document.getElementById('config-record').textContent=JSON.stringify({strategy:strategies[r.config.strategy].name,rule:strategies[r.config.strategy].rule,universe:markets[r.seed],seed:r.seed,...Object.fromEntries(Object.entries(r.config).filter(([key])=>!strategies[r.config.strategy].educational||key!=='slow'))},null,2);
  }else if(detailTab==='Validation'){
-  body.innerHTML=`<section class="panel"><h2>Validation & provenance</h2><dl><div><dt>Engine</dt><dd>Elixir public research engine</dd></div><div><dt>Data status</dt><dd>${dataText(r)}${r.config.dataSource==='historical'?'':' · Not real market history'}</dd></div><div><dt>Period</dt><dd>${periodText(r)}</dd></div><div><dt>Benchmark</dt><dd>Frictionless buy & hold</dd></div><div><dt>Execution</dt><dd>Yesterday's signal executes at today's close, adjusted for slippage and fees.</dd></div></dl></section>`;
+  body.innerHTML=`<section class="panel"><h2>Validation & provenance</h2><dl><div><dt>Engine</dt><dd>Elixir public research engine</dd></div><div><dt>Data status</dt><dd>${dataText(r)}${r.config.dataSource==='historical'?'':' · Not real market history'}</dd></div><div><dt>Period</dt><dd>${periodText(r)}</dd></div><div><dt>Validation</dt><dd>No automatic in-sample / out-of-sample split. Results alone do not establish out-of-sample performance.</dd></div><div><dt>Benchmark</dt><dd>Frictionless buy & hold; strategy costs make this a conservative comparison.</dd></div><div><dt>Execution</dt><dd>Yesterday's signal executes at today's adjusted close, with slippage and fees. Adjusted prices are a proxy, not historical fills.</dd></div></dl></section>`;
  }else{
   body.innerHTML='<section class="panel"><h2>Recorded artifacts</h2><button id="download">Download run JSON</button><button id="download-strategy">Download</button></section>';document.getElementById('download-strategy').onclick=()=>downloadStrategy(strategyForRun(r));document.getElementById('download').onclick=()=>{const blob=new Blob([JSON.stringify(r,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='elixir-quant-'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
  }

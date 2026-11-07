@@ -48,8 +48,10 @@ export const strategies = {
 export function backtest(rows, {strategy = 'sma', custom, fast = 20, slow = 60, capital = 10000, fee = 5, slippage = 5} = {}) {
   if (!Object.hasOwn(strategies, strategy)) throw new Error('Choose a supported strategy.');
   const definition = strategy === 'custom' ? validateStrategy(custom) : null;
-  if (![fast, slow].every(Number.isInteger) || fast < 2 || slow <= fast || slow > rows.length || !Number.isFinite(capital) || capital <= 0 || ![fee, slippage].every(v => Number.isFinite(v) && v >= 0 && v < 10000) || !rows.every(r => Number.isFinite(r.close) && r.close > 0)) throw new Error('Choose valid periods (2 ≤ fast < slow ≤ history), positive capital, and costs below 10,000 bps.');
-  const f = strategy === 'momentum' ? rows.map(()=>null) : average(rows, fast), s = ['sma','momentum'].includes(strategy) ? rows.map(()=>null) : average(rows, slow), cost = fee / 10000, slip = slippage / 10000;
+  if (!Array.isArray(rows) || rows.length < 2 || !rows.every(r => Number.isFinite(r.close) && r.close > 0) || !Number.isFinite(capital) || capital <= 0 || ![fee, slippage].every(v => Number.isFinite(v) && v >= 0 && v < 10000)) throw new Error('Choose at least two valid prices, positive capital, and costs below 10,000 bps.');
+  if (strategy !== 'custom' && (!Number.isInteger(fast) || fast < 2 || fast >= rows.length)) throw new Error('Choose a lookback of at least 2 sessions and shorter than the available history.');
+  if (['trend','crossover','breakout'].includes(strategy) && (!Number.isInteger(slow) || slow <= fast || slow > rows.length)) throw new Error('Choose periods with fast < slow ≤ available history.');
+  const f = ['momentum','custom'].includes(strategy) ? rows.map(()=>null) : average(rows, fast), s = ['sma','momentum','custom'].includes(strategy) ? rows.map(()=>null) : average(rows, slow), cost = fee / 10000, slip = slippage / 10000;
   let cash = capital, shares = 0, peak = capital, maxDrawdown = 0;
   const trades = [], equity = [], drawdowns = [];
   rows.forEach((r, i) => {

@@ -11,6 +11,11 @@ test('custom rules fill one session later and obey exit conditions',()=>{
  assert.deepEqual(r.trades.map(t=>[t.side,t.day]),[['Buy',2],['Sell',4]]);
  assert(Math.abs(r.equity.at(-1)-10000/104*99)<1e-8);
 });
+test('custom rules run on short histories without unrelated model lookbacks',()=>{
+ const rows=[100,103,104,100,99].map(close=>({close}));
+ const r=backtest(rows,{strategy:'custom',custom:definition,fee:0,slippage:0});
+ assert.deepEqual(r.trades.map(t=>[t.side,t.day]),[['Buy',2],['Sell',4]]);
+});
 test('rule groups support all/any and require sufficient indicator history',()=>{
  const rows=[100,101,102,103].map(close=>({close}));
  const a=compare({type:'sma',period:3},'gt',number(100));

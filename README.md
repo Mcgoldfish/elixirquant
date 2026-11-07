@@ -68,6 +68,10 @@ Signals use the prior session; orders execute at the following session's adjuste
 
 CAGR uses elapsed calendar days (365.25 days/year) for historical runs. Sharpe uses daily equity returns, population standard deviation, annualization by sqrt(252), and zero risk-free rate. Drawdown uses the running peak of daily equity. Taxes, liquidity and market impact are omitted.
 
+The app does not split data into training and validation periods or track how a strategy was chosen. A result cannot automatically be identified as in-sample or out-of-sample; selecting a strategy after inspecting the same period can bias its apparent performance. Reserve a later period before choosing rules and parameters if evaluating out-of-sample performance. The frictionless benchmark and cost-bearing strategy use different cost assumptions, so their comparison is not cost-matched.
+
+Single-indicator strategies require their own lookback to fit the selected history; they do not require the legacy slow-period parameter. Custom rules have their own indicator warm-up, and a short period may produce no signals when an indicator has insufficient history.
+
 [Apache ECharts](https://echarts.apache.org/handbook/en/basics/import/) provides interactive equity, drawdown, underlying adjusted-price, and comparison graphs. Hover to inspect values, use the slider or mouse wheel to zoom, toggle legend series, restore the full view, or save chart images. Historical comparisons align actual dates; missing observations appear as gaps. Comparison curves are normalized to 100 and differing stocks, dates, capital or costs are flagged. Simulated runs cannot be mixed with historical runs on a comparison chart.
 
 Legacy browser-saved simulations remain reproducible and clearly labelled, and are excluded by the default historical-data filter. The original v1 generator added a strong repeating sinusoidal return component that favored trend-following; its high returns were not real-market evidence. Stored results are not silently regenerated on different prices.
