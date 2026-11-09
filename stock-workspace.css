@@ -3,3 +3,5 @@
 @media(min-width:1500px){.eq-stock-workspace .stock-chart{height:650px}.eq-stock-workspace .stock-layout{grid-template-columns:44px minmax(0,1fr) 270px}}
 @media(max-width:1050px){.eq-stock-workspace .stock-layout{grid-template-columns:38px minmax(0,1fr)}.eq-stock-workspace .stock-watch{grid-column:1/-1;border-left:0;border-top:1px solid var(--stock-line);display:grid;grid-template-columns:1fr 1fr}.eq-stock-workspace .stock-detail{border-top:0;border-left:1px solid var(--stock-line)}.eq-stock-workspace .stock-watchlist{max-height:240px}}
 @media(max-width:550px){.eq-stock-workspace .stock-layout{grid-template-columns:minmax(0,1fr)}.eq-stock-workspace .stock-tools{flex-direction:row;border-right:0;border-bottom:1px solid var(--stock-line);padding:6px 10px}.eq-stock-workspace .stock-chart{height:470px}.eq-stock-workspace .stock-watch{grid-template-columns:1fr}.eq-stock-workspace .stock-detail{border-left:0;border-top:1px solid var(--stock-line)}.eq-stock-workspace .stock-select{max-width:100%;width:100%}}
+
+.eq-stock-workspace .stock-tool-help{margin:0;padding:4px 14px 10px;line-height:1.7;max-width:100%;overflow-wrap:anywhere}
