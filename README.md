@@ -118,3 +118,9 @@ Only native single-indicator educational releases belong on this site. No AmiBro
 #### Public workflow (October 2026)
 
 The public navigation is Home → Strategies → Backtest → Compare → Data & Connection. Home suggests research questions and next steps. Strategies combines published educational SMA/momentum examples with browser-saved custom strategies, and provides Create New Strategy with editable entry and exit conditions. Select an educational or custom strategy for Backtest; all saved definitions are also available in the new-backtest selector. Compare provides its own selector for two or three completed runs. Data & Connection documents local execution, storage, historical coverage, and limitations. Private publisher releases are no longer a separate page in this public workflow.
+
+## Stock charts
+
+Open **Stock charts** to search the existing 101-stock reference by ticker/company. View daily, weekly, or monthly candlesticks with linked volume, OHLC tooltips, a zoom slider, date filters, and image export. Green means close at or above open; red means below. Coverage is shown per stock, including shorter histories and partial boundary periods.
+
+Chart data is a separate Yahoo Finance OHLCV snapshot through 2026-11-06; it is not a live feed and is not dividend-adjusted closing data. Provider adjustments may include splits. Existing backtest data, accounting, and private strategies are unchanged. Refresh this separate dataset with `node scripts/update-candles.mjs YYYY-MM-DD`, choosing a completed-session cutoff; missing OHLC rows are omitted, never synthesized.

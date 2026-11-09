@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node server.cjs",
-    "test": "node --test model.test.js rules.test.js history.test.js publisher.test.js",
+    "test": "node --test model.test.js rules.test.js history.test.js publisher.test.js candle.test.js",
     "build": "node build.js",
     "publisher:serve": "node scripts/publisher-server.mjs"
   },

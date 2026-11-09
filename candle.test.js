@@ -1,0 +1,7 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {candleRows} from './candle-model.js';
+const data=JSON.parse(readFileSync(new URL('./candle-data.json',import.meta.url)));
+test('real OHLCV covers all reference stocks with ordered valid candles',()=>{const history=JSON.parse(readFileSync(new URL('./historical-data.json',import.meta.url)));for(const symbol of Object.keys(history.stocks)){const stock=data.stocks[symbol];assert(stock||data.unavailable.some(s=>s.symbol===symbol));if(!stock)continue;assert(stock.rows.length>1);stock.rows.forEach((r,i)=>{assert.equal(r.length,6);assert(r[0]<=data.through);assert(!i||r[0]>stock.rows[i-1][0]);assert(r.slice(1).every(Number.isFinite));assert(r[3]<=Math.min(r[1],r[4]));assert(r[2]>=Math.max(r[1],r[4]));assert(r[3]>0&&r[5]>=0);});}});
+test('weekly/monthly OHLC and volume preserve actual sessions and boundary filters',()=>{const rows=[['2026-01-02',10,14,9,12,100],['2026-01-05',13,16,11,15,200],['2026-01-06',15,18,14,17,300],['2026-02-02',20,24,19,22,400]];assert.deepEqual(candleRows(rows,{interval:'weekly'}),[rows[0],['2026-01-05',13,18,11,17,500],rows[3]]);assert.deepEqual(candleRows(rows,{interval:'monthly'}),[['2026-01-02',10,18,9,17,600],rows[3]]);assert.deepEqual(candleRows(rows,{interval:'monthly',start:'2026-01-06',end:'2026-01-31'}),[rows[2]]);assert.deepEqual(candleRows(rows,{start:'2030-01-01'}),[]);assert.throws(()=>candleRows(rows,{start:'2026-02-01',end:'2026-01-01'}));assert.deepEqual(candleRows(rows),rows);});

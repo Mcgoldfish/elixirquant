@@ -1,3 +1,4 @@
+import {stockChartsPage} from './stock-charts.js';
 import {releases} from './education.js';
 import {prices,average,backtest,strategies,historyForRun,historicalHistory,annualizedReturn} from './model.js';
 import {validateStrategy,operands} from './rules.js';
@@ -5,7 +6,7 @@ import {drawChart} from './charts.js';
 const content=document.getElementById('content'), storageKey='elixirQuantPublic.results.v2';
 content.textContent='Loading historical Nasdaq-100 stock prices…';
 let historical;try{const response=await fetch('./historical-data.json');if(!response.ok)throw new Error('Historical snapshot unavailable');historical=await response.json();if(historical.schema!=='elixir-quant-history')throw new Error('Invalid historical snapshot');}catch(error){content.textContent='Could not load historical market data. Please reload the page. '+error.message;throw error;}
-const pages=['Home','Strategies','Backtest','Compare','Data & Connection'];
+const pages=['Home','Stock charts','Strategies','Backtest','Compare','Data & Connection'];
 let preferredStrategy='sma';
 const markets={42:'ELX-A',127:'ELX-B',903:'ELX-C',...Object.fromEntries(Object.keys(historical.stocks).map(symbol=>[symbol,symbol]))};
 const marketLabel=seed=>historical.stocks[seed]?seed+' · '+historical.stocks[seed].name:'Simulated market '+({42:'A',127:'B',903:'C'}[seed]);
@@ -166,7 +167,7 @@ function renderEditor(){
   const update=()=>{period.parentElement.hidden=['close','number'].includes(select.value);value.parentElement.hidden=select.value!=='number';period.disabled=period.parentElement.hidden;value.disabled=value.parentElement.hidden;};select.onchange=update;update();
  }
 }
-function render(){try{sessionStorage.setItem('elixirQuantPublic.page',page);}catch{}document.title='Elixir Quant · '+page;navigation();if(page==='Home'){home();return;}if(page==='Backtest'){if(selected)detail();else list();}else if(page==='Strategies')libraryPage();else if(page==='Compare')compare();else settings();}
+function render(){try{sessionStorage.setItem('elixirQuantPublic.page',page);}catch{}document.title='Elixir Quant · '+page;navigation();if(page==='Stock charts'){stockChartsPage(content);return;}if(page==='Home'){home();return;}if(page==='Backtest'){if(selected)detail();else list();}else if(page==='Strategies')libraryPage();else if(page==='Compare')compare();else settings();}
 window.addEventListener('storage',e=>{if(e.key===storageKey){load();checked.clear();render();}else if(e.key===libraryKey){readLibrary();render();}});
 document.querySelector('.brand').addEventListener('click',e=>{e.preventDefault();navigate('Home');});
 try{const previous=sessionStorage.getItem('elixirQuantPublic.page');const migrated={'My strategies':'Strategies','Published strategies':'Strategies','Backtests':'Backtest'}[previous]||previous;if(pages.includes(migrated))page=migrated;}catch{}
